@@ -6,8 +6,8 @@
 
 ```bash
 composer require thelia/tiptap-module
-ddev exec php Thelia module:refresh
-ddev exec php Thelia module:activate Tiptap
+php Thelia module:refresh
+php Thelia module:activate Tiptap
 ```
 
 The compiled bundle ships in `Resources/dist/`. `postActivation` mirrors it into `web/tiptap/`.
