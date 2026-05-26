@@ -10,7 +10,7 @@ php Thelia module:refresh
 php Thelia module:activate Tiptap
 ```
 
-The compiled bundle ships in `Resources/dist/`. `postActivation` mirrors it into `web/tiptap/`.
+The compiled bundle ships in `Resources/dist/`. `postActivation` mirrors it into `public/tiptap/` (or a symlink, depending on `Document::CONFIG_DELIVERY_MODE`).
 
 If both Tinymce and Tiptap are active, Tiptap detects `window.tinymce` and stays inactive. Deactivate the legacy module first.
 
