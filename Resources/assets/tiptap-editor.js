@@ -682,13 +682,11 @@ function bootstrap() {
 
     const mountQueue = [];
     let queueRunning = false;
-    const scheduleIdle = (fn) => {
-        if (typeof window.requestIdleCallback === 'function') {
-            window.requestIdleCallback(fn, { timeout: 250 });
-        } else {
-            setTimeout(fn, 16);
-        }
-    };
+    // setTimeout(0) is more predictable than requestIdleCallback for
+    // queue draining: requestIdleCallback can be deferred indefinitely
+    // by headless browsers (Playwright never reports the page as idle)
+    // and would leave the editors stuck in the pending state.
+    const scheduleIdle = (fn) => setTimeout(fn, 0);
 
     const drainQueue = () => {
         if (mountQueue.length === 0) {

@@ -24,26 +24,8 @@ class Tiptap extends BaseModule
 {
     public const DOMAIN_NAME = 'tiptap';
 
-    /**
-     * Default toolbar identical in capability to the legacy Tinymce module
-     * (undo/redo, bold/italic/underline/strike, headings, alignment, lists,
-     * link, image, color, highlight, hr, table, code, source, fullscreen,
-     * print, preview, charmap).
-     */
     public const DEFAULT_TOOLBAR = 'undo,redo,|,bold,italic,underline,strike,|,heading,paragraph,|,align-left,align-center,align-right,align-justify,|,bulletlist,orderedlist,outdent,indent,|,link,unlink,image,|,forecolor,backcolor,|,hr,blockquote,table,|,code,source,|,charmap,fullscreen,print,preview';
 
-    /**
-     * Default CSS selectors for textareas to upgrade into TipTap editors.
-     *
-     * We cover the legacy `.wysiwyg` class (kept for Smarty templates that
-     * still tag their textareas) plus the canonical Thelia rich-text field
-     * names — description / chapo / postscriptum / conclusion / summary /
-     * content — that every back-office form uses by convention. The list
-     * is taken from the legacy Tinymce `available_text_areas` mapping and
-     * extended to match the BO Twig form naming. SEO meta_description /
-     * meta_keywords textareas are intentionally excluded by the JS layer
-     * because they are not rich-text.
-     */
     public const DEFAULT_TARGET_SELECTORS = 'textarea.wysiwyg,textarea[data-controller~="tiptap-editor"],textarea[name$="[description]"],textarea[name$="[chapo]"],textarea[name$="[postscriptum]"],textarea[name$="[conclusion]"]';
 
     public const DEFAULT_EDITOR_HEIGHT = '320';
@@ -62,12 +44,6 @@ class Tiptap extends BaseModule
         $fileSystem = new Filesystem();
 
         if (!$fileSystem->exists($this->assetSourceDir)) {
-            // The compiled bundle ships with the module; if it is missing,
-            // the maintainer forgot to run `npm run build` before publishing.
-            // We do not fail postActivation (the module stays installed) but
-            // we log a warning visible in the admin module page once the
-            // user opens it. Hook rendering will gracefully no-op until the
-            // bundle is available on disk.
             $fileSystem->mkdir($this->assetSourceDir);
         }
 
@@ -81,9 +57,6 @@ class Tiptap extends BaseModule
             }
         }
 
-        // Always seed defaults on (re)activation. Existing values are not
-        // overwritten — keep null-check to preserve user customizations — but
-        // we ensure each config row exists with a sane initial value.
         if (null === ConfigQuery::read('tiptap.toolbar_items')) {
             ConfigQuery::write('tiptap.toolbar_items', self::DEFAULT_TOOLBAR);
         }
@@ -119,10 +92,6 @@ class Tiptap extends BaseModule
         if (!$deleteModuleData) {
             return;
         }
-
-        // Nothing module-owned in the database for now (config rows only).
-        // The Config\Variable table cleanup is handled by the core uninstaller
-        // through the variables prefixed by `tiptap.`.
     }
 
     public static function configureServices(ServicesConfigurator $servicesConfigurator): void

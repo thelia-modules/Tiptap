@@ -19,18 +19,6 @@ use Thelia\Core\Hook\BaseHook;
 use Thelia\Model\ConfigQuery;
 use Tiptap\Tiptap;
 
-/**
- * Injects the TipTap editor bootstrap (CSS + JS + config) into every
- * back-office page that emits the `wysiwyg.js` hook. Mirrors the legacy
- * Tinymce module so that any textarea with class `.wysiwyg` becomes a
- * fully featured WYSIWYG editor — no template change required.
- *
- * Unlike most BaseHook implementations, this listener avoids calling
- * `$this->getRequest()` / `getParser()` because Thelia's `ParserResolver`
- * does not expose a "current parser" when the host page is rendered by
- * the BO Twig bundle (Twig native render). The locale is resolved through
- * an explicit `RequestStack` injection instead.
- */
 class WysiwygHookManager extends BaseHook
 {
     public function __construct(
