@@ -648,18 +648,21 @@ function bootstrap() {
         return false;
     };
 
-    // Lazy mount: editors are created on first user interaction with the
-    // textarea (focus, mousedown, paste). This keeps the initial page
-    // render light and avoids stalling browsers that have many WYSIWYG
-    // candidates on a single page (e.g. /admin/categories/update).
+    // Progressive mount: every matching textarea is wrapped after the
+    // page has painted, one per idle frame, so the user sees the
+    // editors immediately without freezing the browser even when several
+    // rich-text fields share the same page (category/edit, product/edit).
+    // A focus listener fast-tracks the textarea the user is about to
+    // interact with so the queue can never feel sluggish.
     const mountTarget = (target) => {
         if (!isEligible(target) || !matchesSelectors(target)) return;
         new TiptapMount(target, options).mount();
     };
 
-    const armLazyMount = (root) => {
-        if (!root || typeof root.querySelectorAll !== 'function') return;
-        const placeholderClass = 'tiptap-pending';
+    const collectTargets = (root) => {
+        if (!root || typeof root.querySelectorAll !== 'function') return [];
+        const seen = new Set();
+        const found = [];
         selectors.forEach((sel) => {
             let nodes;
             try {
@@ -669,37 +672,100 @@ function bootstrap() {
             }
             nodes.forEach((el) => {
                 if (!isEligible(el)) return;
-                if (el.classList.contains(placeholderClass)) return;
-                el.classList.add(placeholderClass);
-                const onInteract = (e) => {
-                    el.removeEventListener('focus', onInteract);
-                    el.removeEventListener('mousedown', onInteract);
-                    el.removeEventListener('touchstart', onInteract);
-                    el.classList.remove(placeholderClass);
-                    // Mount on next frame so the click/focus is not
-                    // swallowed by the DOM swap.
-                    requestAnimationFrame(() => mountTarget(el));
-                };
-                el.addEventListener('focus', onInteract, { once: false });
-                el.addEventListener('mousedown', onInteract, { once: false });
-                el.addEventListener('touchstart', onInteract, { once: false });
+                if (seen.has(el)) return;
+                seen.add(el);
+                found.push(el);
             });
+        });
+        return found;
+    };
+
+    const mountQueue = [];
+    let queueRunning = false;
+    const scheduleIdle = (fn) => {
+        if (typeof window.requestIdleCallback === 'function') {
+            window.requestIdleCallback(fn, { timeout: 250 });
+        } else {
+            setTimeout(fn, 16);
+        }
+    };
+
+    const drainQueue = () => {
+        if (mountQueue.length === 0) {
+            queueRunning = false;
+            return;
+        }
+        const target = mountQueue.shift();
+        if (target && isEligible(target)) {
+            target.classList.remove('tiptap-pending');
+            mountTarget(target);
+        }
+        if (mountQueue.length > 0) {
+            scheduleIdle(drainQueue);
+        } else {
+            queueRunning = false;
+        }
+    };
+
+    const enqueue = (target) => {
+        if (!target || target.getAttribute(TIPTAP_MOUNTED_ATTR) === 'true') return;
+        if (mountQueue.includes(target)) return;
+        mountQueue.push(target);
+        if (!queueRunning) {
+            queueRunning = true;
+            scheduleIdle(drainQueue);
+        }
+    };
+
+    const promoteToFront = (target) => {
+        const idx = mountQueue.indexOf(target);
+        if (idx > 0) {
+            mountQueue.splice(idx, 1);
+            mountQueue.unshift(target);
+        }
+    };
+
+    const armProgressiveMount = (root) => {
+        const targets = collectTargets(root);
+        targets.forEach((el) => {
+            el.classList.add('tiptap-pending');
+            // Fast-track: if the user reaches this textarea before the
+            // idle queue does, bump it to the front and mount on the
+            // next animation frame so the focus is not lost.
+            const onInteract = () => {
+                el.removeEventListener('focus', onInteract);
+                el.removeEventListener('mousedown', onInteract);
+                el.removeEventListener('touchstart', onInteract);
+                if (el.getAttribute(TIPTAP_MOUNTED_ATTR) === 'true') return;
+                promoteToFront(el);
+                requestAnimationFrame(() => {
+                    if (el.getAttribute(TIPTAP_MOUNTED_ATTR) === 'true') return;
+                    el.classList.remove('tiptap-pending');
+                    mountTarget(el);
+                });
+            };
+            el.addEventListener('focus', onInteract);
+            el.addEventListener('mousedown', onInteract);
+            el.addEventListener('touchstart', onInteract);
+            enqueue(el);
         });
     };
 
-    const arm = () => armLazyMount(document);
+    const arm = () => armProgressiveMount(document);
 
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', arm, { once: true });
     } else {
-        arm();
+        // Defer to the next frame so the browser can paint the rest of
+        // the page before we kick off the queue.
+        requestAnimationFrame(arm);
     }
 
     // Expose a manual hook so other scripts (e.g. dynamically inserted
     // modals) can re-arm new textareas without waiting for the next page
     // load.
     window.TiptapEditor = {
-        arm: armLazyMount,
+        arm: armProgressiveMount,
         mount: mountTarget,
     };
 }
