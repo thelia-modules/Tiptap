@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<config xmlns="http://thelia.net/schema/dic/config"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://thelia.net/schema/dic/config http://thelia.net/schema/dic/config/thelia-1.0.xsd">
+
+    <!--
+        Thelia 3 auto-discovers BaseHook listeners (via getSubscribedHooks()),
+        BaseForm forms, controllers (#[Route]), event subscribers and services
+        from configureServices() in Tiptap.php. config.xml is kept empty for
+        forward compatibility with Thelia 2.x style declarations if needed.
+    -->
+
+</config>

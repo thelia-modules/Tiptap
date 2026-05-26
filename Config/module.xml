@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module xmlns="http://thelia.net/schema/dic/module"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://thelia.net/schema/dic/module http://thelia.net/schema/dic/module/module-2_2.xsd">
+    <fullnamespace>Tiptap\Tiptap</fullnamespace>
+    <descriptive locale="en_US">
+        <title>TipTap WYSIWYG editor</title>
+        <description>Modern WYSIWYG editor (TipTap / ProseMirror) for Thelia 3 back-office Twig.</description>
+    </descriptive>
+    <descriptive locale="fr_FR">
+        <title>Editeur visuel TipTap</title>
+        <description>Editeur WYSIWYG moderne (TipTap / ProseMirror) pour le back-office Twig de Thelia 3.</description>
+    </descriptive>
+    <languages>
+        <language>en_US</language>
+        <language>fr_FR</language>
+    </languages>
+    <version>0.1.0</version>
+    <authors>
+        <author>
+            <name>OpenStudio</name>
+            <email>info@thelia.net</email>
+            <website>https://thelia.net</website>
+        </author>
+    </authors>
+    <type>classic</type>
+    <thelia>2.6.0</thelia>
+    <stability>alpha</stability>
+</module>

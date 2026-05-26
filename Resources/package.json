@@ -1,0 +1,38 @@
+{
+    "name": "thelia-tiptap-module",
+    "version": "0.1.0",
+    "private": true,
+    "description": "TipTap WYSIWYG bundle for Thelia 3 back-office Twig (TinyMCE feature parity).",
+    "scripts": {
+        "build": "webpack --mode production",
+        "watch": "webpack --mode development --watch",
+        "dev": "webpack --mode development"
+    },
+    "dependencies": {
+        "@tiptap/core": "^3.0.0",
+        "@tiptap/extension-character-count": "^3.0.0",
+        "@tiptap/extension-color": "^3.0.0",
+        "@tiptap/extension-highlight": "^3.0.0",
+        "@tiptap/extension-image": "^3.0.0",
+        "@tiptap/extension-link": "^3.0.0",
+        "@tiptap/extension-placeholder": "^3.0.0",
+        "@tiptap/extension-subscript": "^3.0.0",
+        "@tiptap/extension-superscript": "^3.0.0",
+        "@tiptap/extension-table": "^3.0.0",
+        "@tiptap/extension-table-cell": "^3.0.0",
+        "@tiptap/extension-table-header": "^3.0.0",
+        "@tiptap/extension-table-row": "^3.0.0",
+        "@tiptap/extension-text-align": "^3.0.0",
+        "@tiptap/extension-text-style": "^3.0.0",
+        "@tiptap/extension-underline": "^3.0.0",
+        "@tiptap/starter-kit": "^3.0.0"
+    },
+    "devDependencies": {
+        "css-loader": "^7.1.2",
+        "mini-css-extract-plugin": "^2.9.0",
+        "sass": "^1.77.0",
+        "sass-loader": "^16.0.0",
+        "webpack": "^5.94.0",
+        "webpack-cli": "^5.1.4"
+    }
+}

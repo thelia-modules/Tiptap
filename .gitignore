@@ -1,0 +1,8 @@
+/Resources/node_modules/
+/Resources/package-lock.json
+/Resources/yarn.lock
+/Resources/.cache/
+/Resources/.parcel-cache/
+.DS_Store
+*.log
+/vendor/

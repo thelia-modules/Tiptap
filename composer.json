@@ -1,0 +1,17 @@
+{
+    "name": "thelia/tiptap-module",
+    "license": "LGPL-3.0+",
+    "type": "thelia-module",
+    "description": "TipTap WYSIWYG editor module for Thelia 3 back-office Twig (modern replacement for legacy Tinymce module).",
+    "require": {
+        "thelia/installer": "~1.1"
+    },
+    "autoload": {
+        "psr-4": {
+            "Tiptap\\": ""
+        }
+    },
+    "extra": {
+        "installer-name": "Tiptap"
+    }
+}

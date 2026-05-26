@@ -1,0 +1,246 @@
+/*
+ * TipTap WYSIWYG bundle — Thelia 3 back-office Twig style overrides.
+ * Bootstrap 5 is expected on the host page (BO Twig ships it).
+ */
+
+$tiptap-border: #ced4da;
+$tiptap-focus: #86b7fe;
+$tiptap-bg: #ffffff;
+$tiptap-muted: #6c757d;
+
+.tiptap-wrapper {
+    border: 1px solid $tiptap-border;
+    border-radius: 0.375rem;
+    background: $tiptap-bg;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+
+    &:focus-within {
+        border-color: $tiptap-focus;
+        box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.15);
+    }
+}
+
+.tiptap-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0;
+    padding: 0.375rem 0.5rem;
+    background: #f8f9fa;
+    border-bottom: 1px solid $tiptap-border;
+
+    .btn-group {
+        margin-right: 0.25rem;
+        margin-bottom: 0.25rem;
+    }
+
+    .btn {
+        --bs-btn-border-color: transparent;
+        padding: 0.2rem 0.45rem;
+        font-size: 0.95rem;
+        line-height: 1;
+
+        i {
+            font-size: 0.95rem;
+            vertical-align: middle;
+        }
+
+        &.active {
+            background: #0d6efd;
+            color: #fff;
+            border-color: #0d6efd;
+        }
+    }
+}
+
+.tiptap-color-input {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.tiptap-content {
+    padding: 0.75rem 1rem;
+    min-height: 240px;
+    background: $tiptap-bg;
+    overflow: auto;
+
+    .tiptap-prose {
+        outline: none;
+        min-height: 100%;
+
+        > * + * {
+            margin-top: 0.75em;
+        }
+
+        p {
+            margin: 0 0 0.75em 0;
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            line-height: 1.2;
+            font-weight: 600;
+            margin: 1em 0 0.5em 0;
+        }
+        h1 { font-size: 1.75rem; }
+        h2 { font-size: 1.5rem; }
+        h3 { font-size: 1.3rem; }
+        h4 { font-size: 1.15rem; }
+        h5 { font-size: 1.05rem; }
+        h6 { font-size: 1rem; }
+
+        a {
+            color: #0d6efd;
+            text-decoration: underline;
+        }
+
+        ul, ol {
+            padding-left: 1.5rem;
+        }
+
+        ul li {
+            list-style: disc;
+        }
+
+        ol li {
+            list-style: decimal;
+        }
+
+        blockquote {
+            border-left: 3px solid $tiptap-border;
+            padding-left: 0.75rem;
+            color: $tiptap-muted;
+        }
+
+        code {
+            background: rgba(0, 0, 0, 0.05);
+            padding: 0.1em 0.3em;
+            border-radius: 3px;
+            font-size: 0.95em;
+        }
+
+        pre.tiptap-code-block,
+        pre {
+            background: #1f2937;
+            color: #f9fafb;
+            padding: 0.75rem 1rem;
+            border-radius: 5px;
+            overflow-x: auto;
+            font-family: 'SFMono-Regular', Menlo, Monaco, Consolas, monospace;
+            font-size: 0.85rem;
+
+            code {
+                background: transparent;
+                padding: 0;
+                color: inherit;
+            }
+        }
+
+        hr {
+            border: 0;
+            border-top: 1px solid $tiptap-border;
+            margin: 1.25rem 0;
+        }
+
+        img {
+            max-width: 100%;
+            height: auto;
+        }
+
+        table {
+            border-collapse: collapse;
+            margin: 0;
+            overflow: hidden;
+            table-layout: fixed;
+            width: 100%;
+
+            td, th {
+                border: 1px solid $tiptap-border;
+                padding: 0.4rem 0.6rem;
+                vertical-align: top;
+            }
+
+            th {
+                background: #f1f3f5;
+                font-weight: 600;
+            }
+
+            .selectedCell {
+                background: rgba(13, 110, 253, 0.1);
+            }
+        }
+
+        mark {
+            background-color: #fff3a0;
+            padding: 0 0.15em;
+        }
+    }
+}
+
+.tiptap-source-textarea {
+    width: 100%;
+    min-height: 240px;
+    padding: 0.75rem 1rem;
+    font-family: 'SFMono-Regular', Menlo, Monaco, Consolas, monospace;
+    font-size: 0.85rem;
+    border: 0;
+    border-radius: 0;
+    background: #f8fafc;
+    color: #111;
+    resize: vertical;
+
+    &:focus {
+        outline: none;
+        box-shadow: none;
+    }
+
+    &.tiptap-source-active {
+        display: block !important;
+    }
+}
+
+.tiptap-wrapper.is-source-view {
+    .tiptap-content {
+        display: none;
+    }
+}
+
+.tiptap-wrapper.is-fullscreen {
+    position: fixed;
+    inset: 0;
+    z-index: 1080;
+    border-radius: 0;
+    background: $tiptap-bg;
+    display: flex;
+    flex-direction: column;
+
+    .tiptap-content {
+        flex: 1 1 auto;
+        max-height: none;
+    }
+}
+
+body.tiptap-fullscreen-active {
+    overflow: hidden;
+}
+
+.tiptap-preview-content {
+    padding: 0.5rem 0;
+
+    img { max-width: 100%; }
+    table { border-collapse: collapse; }
+    table td, table th { border: 1px solid $tiptap-border; padding: 0.25rem 0.5rem; }
+}
+
+.tiptap-char-btn {
+    min-width: 2.5rem;
+    font-size: 1.1rem;
+}
