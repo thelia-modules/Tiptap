@@ -26,9 +26,20 @@ class Tiptap extends BaseModule
 
     public const DEFAULT_TOOLBAR = 'undo,redo,|,bold,italic,underline,strike,|,heading,paragraph,|,align-left,align-center,align-right,align-justify,|,bulletlist,orderedlist,outdent,indent,|,link,unlink,image,|,forecolor,backcolor,|,hr,blockquote,table,|,code,source,|,charmap,fullscreen,print,preview';
 
-    public const DEFAULT_TARGET_SELECTORS = 'textarea.wysiwyg,textarea[data-controller~="tiptap-editor"],textarea[name$="[description]"],textarea[name$="[chapo]"],textarea[name$="[postscriptum]"],textarea[name$="[conclusion]"]';
+    /**
+     * Extra zones, beyond the per-field matrix, where the editor mounts. Holds
+     * the test zone (.wysiwyg) on the configuration page and any textarea opting
+     * in through the `tiptap-editor` Stimulus controller.
+     */
+    public const DEFAULT_EXTRA_SELECTORS = '.wysiwyg,textarea[data-controller~="tiptap-editor"]';
 
     public const DEFAULT_EDITOR_HEIGHT = '320';
+
+    /** Catalogue entities whose edit screen carries rich-text fields. */
+    public const ENTITIES = ['product', 'content', 'folder', 'brand', 'category'];
+
+    /** Configurable fields, mapped to the Thelia form field they target. */
+    public const FIELDS = ['summary' => 'chapo', 'conclusion' => 'postscriptum'];
 
     private readonly string $assetSourceDir;
     private readonly string $assetWebDir;
@@ -61,8 +72,8 @@ class Tiptap extends BaseModule
             ConfigQuery::write('tiptap.toolbar_items', self::DEFAULT_TOOLBAR);
         }
 
-        if (null === ConfigQuery::read('tiptap.target_selectors')) {
-            ConfigQuery::write('tiptap.target_selectors', self::DEFAULT_TARGET_SELECTORS);
+        if (null === ConfigQuery::read('tiptap.extra_selectors')) {
+            ConfigQuery::write('tiptap.extra_selectors', self::DEFAULT_EXTRA_SELECTORS);
         }
 
         if (null === ConfigQuery::read('tiptap.editor_height')) {
@@ -76,6 +87,47 @@ class Tiptap extends BaseModule
         if (null === ConfigQuery::read('tiptap.show_toolbar')) {
             ConfigQuery::write('tiptap.show_toolbar', '1');
         }
+
+        foreach (self::ENTITIES as $entity) {
+            foreach (array_keys(self::FIELDS) as $field) {
+                $key = 'tiptap.'.$entity.'_'.$field;
+                if (null === ConfigQuery::read($key)) {
+                    ConfigQuery::write($key, '1');
+                }
+            }
+        }
+    }
+
+    /**
+     * Build the CSS selector list of textareas the editor mounts on, from the
+     * per-field matrix. The description field is always editable; summary and
+     * conclusion follow their matrix checkbox per entity; extra zones are
+     * appended from the free-text configuration.
+     */
+    public static function buildTargetSelectors(): string
+    {
+        $selectors = [];
+
+        foreach (self::ENTITIES as $entity) {
+            $prefix = 'thelia_'.$entity.'_modification';
+            $selectors[] = sprintf('textarea[name="%s[description]"]', $prefix);
+
+            foreach (self::FIELDS as $field => $formField) {
+                if ('1' === (string) ConfigQuery::read('tiptap.'.$entity.'_'.$field, '1')) {
+                    $selectors[] = sprintf('textarea[name="%s[%s]"]', $prefix, $formField);
+                }
+            }
+        }
+
+        $extra = (string) ConfigQuery::read('tiptap.extra_selectors', self::DEFAULT_EXTRA_SELECTORS);
+        foreach (explode(',', $extra) as $selector) {
+            $selector = trim($selector);
+            if ('' !== $selector) {
+                $selectors[] = $selector;
+            }
+        }
+
+        return implode(',', array_values(array_unique($selectors)));
     }
 
     public function postDeactivation(ConnectionInterface $con = null): void

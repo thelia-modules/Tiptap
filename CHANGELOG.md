@@ -4,6 +4,18 @@ All notable changes to the Tiptap WYSIWYG module are documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.0] — 2026-06-22
+
+### Added
+- Admin configuration page at `/admin/module/Tiptap` (rendered through the `module.configuration` hook): a per-field matrix that toggles the editor for the Summary and Conclusion fields across Product, Content, Folder, Brand and Category, plus a free-text list of extra CSS selectors, the editor height, and a live sample editor.
+- `Tiptap::buildTargetSelectors()` builds the mount selector list from the matrix; the detailed description field stays editable on every entity.
+- Cache-busting version on the bundle URLs, so a module update is applied without a browser hard-refresh.
+
+### Fixed
+- The heading dropdown now reflects the block under the caret (paragraph or H1–H6) and marks the active menu entry, matching the status indicator of the legacy Tinymce editor.
+
+[0.2.0]: https://github.com/thelia-modules/Tiptap/releases/tag/0.2.0
+
 ## [0.1.0] — 2026-05-26
 
 Initial release.

@@ -1,0 +1,105 @@
+{# TipTap module configuration (module.configuration hook fragment, default-twig BO). #}
+{% set d = 'tiptap' %}
+{% set form = getForm('tiptap_configuration') %}
+{% set columns = {
+    'product': 'Product'|trans({}, d),
+    'content': 'Content'|trans({}, d),
+    'folder': 'Folder'|trans({}, d),
+    'brand': 'Brand'|trans({}, d),
+    'category': 'Category'|trans({}, d)
+} %}
+{% set rows = {
+    'summary': 'Summary'|trans({}, d),
+    'conclusion': 'Conclusion'|trans({}, d)
+} %}
+
+<form method="post" action="{{ path('tiptap.configure') }}" class="tiptap-configuration">
+    {{ form_widget(form._token) }}
+    <input type="hidden" name="{{ field_name(form.success_url) }}" value="{{ path('admin.module.configure', { module_code: 'Tiptap' }) }}">
+    <input type="hidden" name="{{ field_name(form.error_url) }}" value="{{ path('admin.module.configure', { module_code: 'Tiptap' }) }}">
+
+    <div class="d-flex justify-content-end gap-2 mb-3">
+        <a href="/admin/modules" class="btn btn-outline-secondary">{{ 'Close'|trans({}, d) }}</a>
+        <button type="submit" class="btn btn-primary">{{ 'Save'|trans({}, d) }}</button>
+    </div>
+
+    <div class="card mb-3">
+        <div class="card-header">
+            <h2 class="card-title h5 mb-0">{{ 'Fields using the WYSIWYG editor'|trans({}, d) }}</h2>
+        </div>
+        <div class="card-body">
+            <p class="text-muted">{{ 'Check, for each entity, the fields that should use the rich-text editor. The detailed description is always editable.'|trans({}, d) }}</p>
+            <div class="table-responsive">
+                <table class="table table-sm align-middle text-center mb-0">
+                    <thead>
+                        <tr>
+                            <th class="text-start"></th>
+                            {% for entity, label in columns %}
+                                <th>{{ label }}</th>
+                            {% endfor %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for field, rowLabel in rows %}
+                            <tr>
+                                <th class="text-start">{{ rowLabel }}</th>
+                                {% for entity, label in columns %}
+                                    {% set key = entity ~ '_' ~ field %}
+                                    <td>
+                                        <input type="checkbox"
+                                               class="form-check-input"
+                                               name="{{ field_name(form[key]) }}"
+                                               value="1"
+                                               aria-label="{{ label }} — {{ rowLabel }}"
+                                               {% if matrix[key] %}checked{% endif %}>
+                                    </td>
+                                {% endfor %}
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-6">
+            <div class="card mb-3 h-100">
+                <div class="card-header">
+                    <h2 class="card-title h5 mb-0">{{ 'Additional text areas'|trans({}, d) }}</h2>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label class="form-label" for="tiptap_extra_selectors">{{ 'CSS selectors of extra zones'|trans({}, d) }}</label>
+                        <input type="text"
+                               class="form-control"
+                               id="tiptap_extra_selectors"
+                               name="{{ field_name(form.extra_selectors) }}"
+                               value="{{ extraSelectors }}">
+                        <div class="form-text">{{ 'Comma-separated list of ids (#my-id) or classes (.my-class) of additional textareas that should use the editor.'|trans({}, d) }}</div>
+                    </div>
+                    <div class="mb-0">
+                        <label class="form-label" for="tiptap_editor_height">{{ 'Editor height (in pixels, 0 for default)'|trans({}, d) }}</label>
+                        <input type="number"
+                               min="0"
+                               class="form-control"
+                               id="tiptap_editor_height"
+                               name="{{ field_name(form.editor_height) }}"
+                               value="{{ editorHeight }}">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="card mb-3 h-100">
+                <div class="card-header">
+                    <h2 class="card-title h5 mb-0">{{ 'Sample editor'|trans({}, d) }}</h2>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted">{{ 'Preview of the editor with the current configuration. Changes are applied after saving.'|trans({}, d) }}</p>
+                    <textarea class="form-control wysiwyg" name="{{ field_name(form.test_zone) }}" rows="6"></textarea>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>

@@ -47,7 +47,7 @@ class WysiwygHookManager extends BaseHook
     private function renderInit(): string
     {
         $config = [
-            'targetSelectors' => (string) ConfigQuery::read('tiptap.target_selectors', Tiptap::DEFAULT_TARGET_SELECTORS),
+            'targetSelectors' => Tiptap::buildTargetSelectors(),
             'editorHeight' => (int) ConfigQuery::read('tiptap.editor_height', Tiptap::DEFAULT_EDITOR_HEIGHT),
             'toolbarItems' => (string) ConfigQuery::read('tiptap.toolbar_items', Tiptap::DEFAULT_TOOLBAR),
             'showToolbar' => '1' === (string) ConfigQuery::read('tiptap.show_toolbar', '1'),
@@ -57,12 +57,31 @@ class WysiwygHookManager extends BaseHook
         ];
 
         $configJson = json_encode($config, \JSON_THROW_ON_ERROR | \JSON_UNESCAPED_SLASHES);
+        $version = $this->assetVersion();
 
         return <<<HTML
-<link rel="stylesheet" href="/tiptap/tiptap-editor.css">
+<link rel="stylesheet" href="/tiptap/tiptap-editor.css?v={$version}">
 <script id="tiptap-editor-config" type="application/json">{$configJson}</script>
-<script src="/tiptap/tiptap-editor.js" defer></script>
+<script src="/tiptap/tiptap-editor.js?v={$version}" defer></script>
 HTML;
+    }
+
+    /**
+     * Cache-busting token derived from the built bundle mtime, so a module
+     * update is picked up without a manual browser hard-refresh.
+     */
+    private function assetVersion(): string
+    {
+        foreach ([
+            THELIA_WEB_DIR.'tiptap'.\DIRECTORY_SEPARATOR.'tiptap-editor.js',
+            \dirname(__DIR__).\DIRECTORY_SEPARATOR.'Resources'.\DIRECTORY_SEPARATOR.'dist'.\DIRECTORY_SEPARATOR.'tiptap-editor.js',
+        ] as $bundle) {
+            if (is_file($bundle) && false !== ($mtime = filemtime($bundle))) {
+                return (string) $mtime;
+            }
+        }
+
+        return '1';
     }
 
     private function resolveLocale(): string
