@@ -56,7 +56,7 @@ class WysiwygHookManager extends BaseHook
             'assetBaseUrl' => '/tiptap',
         ];
 
-        $configJson = json_encode($config, \JSON_THROW_ON_ERROR | \JSON_UNESCAPED_SLASHES);
+        $configJson = json_encode($config, \JSON_THROW_ON_ERROR | \JSON_UNESCAPED_SLASHES | \JSON_HEX_TAG);
         $version = $this->assetVersion();
 
         return <<<HTML
