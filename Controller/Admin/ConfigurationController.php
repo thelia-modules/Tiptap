@@ -46,7 +46,7 @@ class ConfigurationController extends AdminController
             }
 
             ConfigQuery::write('tiptap.extra_selectors', (string) $data['extra_selectors']);
-            ConfigQuery::write('tiptap.editor_height', (string) (int) $data['editor_height']);
+            ConfigQuery::write('tiptap.editor_height', (string) max(0, (int) $data['editor_height']));
 
             $this->adminLogAppend(
                 AdminResources::MODULE,
