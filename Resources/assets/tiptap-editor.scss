@@ -52,6 +52,13 @@ $tiptap-muted: #6c757d;
             border-color: #0d6efd;
         }
     }
+
+    .tiptap-heading-label {
+        margin-left: 0.3rem;
+        font-size: 0.8rem;
+        font-weight: 600;
+        vertical-align: middle;
+    }
 }
 
 .tiptap-color-input {

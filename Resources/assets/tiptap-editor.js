@@ -47,7 +47,7 @@ const ICONS = {
     italic: '<i class="bi bi-type-italic"></i>',
     underline: '<i class="bi bi-type-underline"></i>',
     strike: '<i class="bi bi-type-strikethrough"></i>',
-    heading: '<i class="bi bi-type-h2"></i>',
+    heading: '<i class="bi bi-type"></i>',
     paragraph: '<i class="bi bi-paragraph"></i>',
     'align-left': '<i class="bi bi-text-left"></i>',
     'align-center': '<i class="bi bi-text-center"></i>',
@@ -73,6 +73,16 @@ const ICONS = {
     preview: '<i class="bi bi-eye"></i>',
     undo: '<i class="bi bi-arrow-counterclockwise"></i>',
     redo: '<i class="bi bi-arrow-clockwise"></i>',
+};
+
+const HEADING_LABELS = {
+    paragraph: 'P',
+    h1: 'H1',
+    h2: 'H2',
+    h3: 'H3',
+    h4: 'H4',
+    h5: 'H5',
+    h6: 'H6',
 };
 
 const TITLES = {
@@ -144,6 +154,9 @@ class TiptapMount {
         this.wrapper = null;
         this.toolbarEl = null;
         this.editorEl = null;
+        this.headingToggle = null;
+        this.headingLabel = null;
+        this.headingMenuItems = {};
         this._submitHandler = null;
     }
 
@@ -289,8 +302,11 @@ class TiptapMount {
         toggle.setAttribute('data-bs-toggle', 'dropdown');
         toggle.setAttribute('aria-expanded', 'false');
         toggle.setAttribute('title', TITLES.heading);
-        toggle.innerHTML = ICONS.heading;
+        toggle.innerHTML = `${ICONS.heading}<span class="tiptap-heading-label">${HEADING_LABELS.paragraph}</span>`;
         wrapper.appendChild(toggle);
+        this.headingToggle = toggle;
+        this.headingLabel = toggle.querySelector('.tiptap-heading-label');
+        this.headingMenuItems = {};
 
         const menu = document.createElement('ul');
         menu.className = 'dropdown-menu';
@@ -315,9 +331,27 @@ class TiptapMount {
             });
             li.appendChild(a);
             menu.appendChild(li);
+            this.headingMenuItems[it.action] = a;
         });
         wrapper.appendChild(menu);
         return wrapper;
+    }
+
+    refreshHeadingState() {
+        if (!this.headingLabel) {
+            return;
+        }
+        let active = 'paragraph';
+        for (let level = 1; level <= 6; level += 1) {
+            if (this.editor.isActive('heading', { level })) {
+                active = `h${level}`;
+                break;
+            }
+        }
+        this.headingLabel.textContent = HEADING_LABELS[active];
+        Object.entries(this.headingMenuItems).forEach(([action, el]) => {
+            el.classList.toggle('active', action === active);
+        });
     }
 
     buildColorPicker(kind) {
@@ -469,6 +503,8 @@ class TiptapMount {
                 btn.classList.remove('active');
             }
         });
+
+        this.refreshHeadingState();
     }
 
     openLinkPrompt() {
