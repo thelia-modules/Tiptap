@@ -4,6 +4,19 @@ All notable changes to the Tiptap WYSIWYG module are documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.1] — 2026-06-22
+
+### Changed
+- The single `tiptap.target_selectors` config key from 0.1.0 is replaced by the per-field matrix (`tiptap.<entity>_summary` / `tiptap.<entity>_conclusion`) plus `tiptap.extra_selectors`. The dead key is dropped on activation; an install that had customised `target_selectors` must re-enter its selectors through the configuration page.
+
+### Security
+- Harden the inline editor config block against HTML injection via the extra-selectors field (`JSON_HEX_TAG`).
+
+### Fixed
+- Clamp a negative editor height to zero on save.
+
+[0.2.1]: https://github.com/thelia-modules/Tiptap/releases/tag/0.2.1
+
 ## [0.2.0] — 2026-06-22
 
 ### Added

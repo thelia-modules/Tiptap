@@ -49,15 +49,20 @@ Bootstrap 5 markup with Bootstrap Icons — same look as the rest of the BO Twig
 
 ## Configuration
 
+A configuration page is available at **Modules → TipTap → Configure** (`/admin/module/Tiptap`). It exposes a per-field matrix that toggles the editor for the **Summary** (`chapo`) and **Conclusion** (`postscriptum`) fields of each catalogue entity (product, content, folder, brand, category), a free-text list of extra CSS selectors, the editor height, and a live sample editor. The detailed description field is always editable.
+
 Settings live in the `config` table under the `tiptap.` prefix and are seeded on activation:
 
 | Key | Default | Description |
 |---|---|---|
 | `tiptap.toolbar_items` | full toolbar | Comma-separated buttons. Use `|` to insert a separator. |
-| `tiptap.target_selectors` | see above | CSS selectors of textareas to upgrade. |
+| `tiptap.<entity>_summary` / `tiptap.<entity>_conclusion` | `1` | Per-field matrix; one key per entity × field (e.g. `tiptap.product_summary`). |
+| `tiptap.extra_selectors` | `.wysiwyg,textarea[data-controller~="tiptap-editor"]` | Additional CSS selectors of textareas to upgrade, on top of the matrix. |
 | `tiptap.editor_height` | `320` | Minimum editor height (px). |
 | `tiptap.show_toolbar` | `1` | Set to `0` to hide the toolbar. |
 | `tiptap.force_pasting_as_text` | `0` | Strip formatting on paste (Phase 2). |
+
+The effective mount selector list is composed at render time by `Tiptap::buildTargetSelectors()` from the matrix plus `extra_selectors`.
 
 ## Programmatic API
 

@@ -96,6 +96,11 @@ class Tiptap extends BaseModule
                 }
             }
         }
+
+        // The 0.1.0 global selector list is superseded by the per-field matrix
+        // and the extra_selectors free text. Drop the dead key so it can no
+        // longer mislead an administrator editing it directly.
+        ConfigQuery::create()->findOneByName('tiptap.target_selectors')?->delete();
     }
 
     /**
