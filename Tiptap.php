@@ -50,7 +50,7 @@ class Tiptap extends BaseModule
         $this->assetWebDir = THELIA_WEB_DIR.'tiptap';
     }
 
-    public function postActivation(ConnectionInterface $con = null): void
+    public function postActivation(?ConnectionInterface $con = null): void
     {
         $fileSystem = new Filesystem();
 
@@ -135,7 +135,7 @@ class Tiptap extends BaseModule
         return implode(',', array_values(array_unique($selectors)));
     }
 
-    public function postDeactivation(ConnectionInterface $con = null): void
+    public function postDeactivation(?ConnectionInterface $con = null): void
     {
         $fileSystem = new Filesystem();
 
@@ -144,7 +144,7 @@ class Tiptap extends BaseModule
         }
     }
 
-    public function destroy(ConnectionInterface $con = null, $deleteModuleData = false): void
+    public function destroy(?ConnectionInterface $con = null, $deleteModuleData = false): void
     {
         if (!$deleteModuleData) {
             return;
