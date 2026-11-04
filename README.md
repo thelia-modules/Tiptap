@@ -64,10 +64,29 @@ Settings live in the `config` table under the `tiptap.` prefix and are seeded on
 
 The effective mount selector list is composed at render time by `Tiptap::buildTargetSelectors()` from the matrix plus `extra_selectors`.
 
+## Per-field toolbar and heading levels
+
+Two optional attributes on a `textarea` override the global settings for that field only. Without them nothing changes.
+
+| Attribute | Value | Effect |
+|---|---|---|
+| `data-tiptap-toolbar` | Comma-separated actions, `\|` for a separator | Replaces the toolbar of the global configuration for this field. Unknown actions are ignored; if no known action remains, the global toolbar is kept. |
+| `data-tiptap-headings` | Comma-separated levels between `1` and `6` | Heading levels allowed in this field, in the heading dropdown, in the `h1`..`h6` buttons and in the editor schema. Invalid values are ignored; if none remains, all six levels stay available. |
+
+```html
+<textarea class="wysiwyg" name="description"
+          data-tiptap-toolbar="undo,redo,|,bold,italic,|,heading,|,bulletlist,orderedlist,|,link,unlink"
+          data-tiptap-headings="2,3,4"></textarea>
+```
+
+A level that is not allowed is removed from the schema: pasted or loaded `<h1>` markup is not kept as a heading but flattened into a paragraph (its text is preserved).
+
 ## Programmatic API
 
 ```js
 window.TiptapEditor.mount(document.getElementById('my-textarea'));
+// Optional second argument: same as the data attributes, and takes precedence over them.
+window.TiptapEditor.mount(document.getElementById('my-textarea'), { toolbar: 'bold,italic,|,heading', headings: [2, 3] });
 window.TiptapEditor.arm(document.getElementById('my-modal'));
 ```
 

@@ -120,9 +120,66 @@ const TITLES = {
 
 const EXCLUDE_PARENT_SELECTOR = '.tiptap-wrapper, .theliablocks-editor, .ace_editor, .CodeMirror, .monaco-editor, .mce-tinymce, [data-no-tiptap], #sfwdt-target, .sf-toolbar';
 
-const buildExtensions = () => [
+const ALL_HEADING_LEVELS = [1, 2, 3, 4, 5, 6];
+
+// Toolbar entries a field may request: every titled button, the heading
+// dropdown and the direct h1..h6 buttons handled by runAction().
+const KNOWN_TOOLBAR_ACTIONS = new Set([
+    ...Object.keys(TITLES),
+    ...ALL_HEADING_LEVELS.map((level) => `h${level}`),
+]);
+
+const toList = (raw) => {
+    if (Array.isArray(raw)) {
+        return raw.map((entry) => String(entry).trim());
+    }
+    if (typeof raw === 'string') {
+        return raw.split(',').map((entry) => entry.trim());
+    }
+    return [];
+};
+
+// Returns a comma-separated toolbar string made of known actions and
+// separators only, or null when nothing usable remains (the caller then
+// falls back to the global toolbar).
+const sanitizeToolbar = (raw) => {
+    const items = toList(raw).filter((entry) => entry === '|' || KNOWN_TOOLBAR_ACTIONS.has(entry));
+    return items.some((entry) => entry !== '|') ? items.join(',') : null;
+};
+
+// Returns a sorted list of unique levels between 1 and 6, or null when
+// nothing usable remains (the caller then allows every level).
+const sanitizeHeadingLevels = (raw) => {
+    const levels = toList(raw)
+        .filter((entry) => /^[1-6]$/.test(entry))
+        .map(Number);
+    return levels.length ? [...new Set(levels)].sort((a, b) => a - b) : null;
+};
+
+// Precedence: global config < data-tiptap-* attributes < JS overrides.
+// An invalid value is ignored and the previous layer applies.
+const resolveFieldOptions = (textarea, baseOptions, overrides) => {
+    const options = { ...baseOptions, headingLevels: ALL_HEADING_LEVELS };
+    const layers = [
+        { toolbar: textarea.getAttribute('data-tiptap-toolbar'), headings: textarea.getAttribute('data-tiptap-headings') },
+        overrides && typeof overrides === 'object' ? overrides : {},
+    ];
+    layers.forEach((layer) => {
+        const toolbar = layer.toolbar == null ? null : sanitizeToolbar(layer.toolbar);
+        const headingLevels = layer.headings == null ? null : sanitizeHeadingLevels(layer.headings);
+        if (toolbar) {
+            options.toolbar = toolbar;
+        }
+        if (headingLevels) {
+            options.headingLevels = headingLevels;
+        }
+    });
+    return options;
+};
+
+const buildExtensions = (headingLevels = ALL_HEADING_LEVELS) => [
     StarterKit.configure({
-        heading: { levels: [1, 2, 3, 4, 5, 6] },
+        heading: { levels: headingLevels },
         codeBlock: { HTMLAttributes: { class: 'tiptap-code-block' } },
         link: false,
         underline: false,
@@ -190,7 +247,7 @@ class TiptapMount {
 
             this.editor = new Editor({
                 element: this.editorEl,
-                extensions: buildExtensions(),
+                extensions: buildExtensions(this.options.headingLevels),
                 content: this.textarea.value || '',
                 editorProps: { attributes: { class: 'tiptap-prose' } },
                 onUpdate: ({ editor }) => {
@@ -255,6 +312,10 @@ class TiptapMount {
             groupEl.className = 'btn-group btn-group-sm me-1 mb-1';
             groupEl.setAttribute('role', 'group');
             group.forEach((item) => {
+                const headingButton = /^h([1-6])$/.exec(item);
+                if (headingButton && !this.options.headingLevels.includes(Number(headingButton[1]))) {
+                    return;
+                }
                 const btn = this.buildButton(item);
                 if (btn) {
                     groupEl.appendChild(btn);
@@ -312,12 +373,7 @@ class TiptapMount {
         menu.className = 'dropdown-menu';
         const items = [
             { label: 'Paragraph', action: 'paragraph' },
-            { label: 'Heading 1', action: 'h1' },
-            { label: 'Heading 2', action: 'h2' },
-            { label: 'Heading 3', action: 'h3' },
-            { label: 'Heading 4', action: 'h4' },
-            { label: 'Heading 5', action: 'h5' },
-            { label: 'Heading 6', action: 'h6' },
+            ...this.options.headingLevels.map((level) => ({ label: `Heading ${level}`, action: `h${level}` })),
         ];
         items.forEach((it) => {
             const li = document.createElement('li');
@@ -342,7 +398,7 @@ class TiptapMount {
             return;
         }
         let active = 'paragraph';
-        for (let level = 1; level <= 6; level += 1) {
+        for (const level of this.options.headingLevels) {
             if (this.editor.isActive('heading', { level })) {
                 active = `h${level}`;
                 break;
@@ -690,9 +746,9 @@ function bootstrap() {
     // rich-text fields share the same page (category/edit, product/edit).
     // A focus listener fast-tracks the textarea the user is about to
     // interact with so the queue can never feel sluggish.
-    const mountTarget = (target) => {
+    const mountTarget = (target, overrides) => {
         if (!isEligible(target) || !matchesSelectors(target)) return;
-        new TiptapMount(target, options).mount();
+        new TiptapMount(target, resolveFieldOptions(target, options, overrides)).mount();
     };
 
     const collectTargets = (root) => {
