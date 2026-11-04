@@ -4,6 +4,13 @@ All notable changes to the Tiptap WYSIWYG module are documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+- `data-tiptap-toolbar` attribute on a textarea: replaces the global toolbar for that field only (known actions only, invalid entries ignored).
+- `data-tiptap-headings` attribute on a textarea: restricts the heading levels (1 to 6) of that field, in the heading dropdown, the `h1`..`h6` buttons and the editor schema.
+- Optional second argument `window.TiptapEditor.mount(target, { toolbar, headings })`, applied over the data attributes.
+
 ## [0.2.1] — 2026-06-22
 
 ### Changed
